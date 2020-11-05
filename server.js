@@ -3,10 +3,6 @@ const INDEX = '/index.html';
 const express = require('express')
 
 const server = express()
-    .use(function (req, res) {
-        console.log('Time: %d', Date.now())
-        //res.sendfile(__dirname + '/index.html');
-    })
     // .use((req, res) => res.sendFile(INDEX, { root: __dirname }))
     .listen(PORT, () => {
         console.log('listening on port 3000')
