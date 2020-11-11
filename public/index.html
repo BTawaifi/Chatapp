@@ -9,11 +9,12 @@
 </head>
 <body>
 <div class="container-fluid w-50 pt-3">
-    <div id="message-container" class="form-control container"  style="height: 250px;overflow-y: scroll;"> </div>
+    <div id="message-container" class="form-control container content"  style="height: 250px;overflow-y: scroll;"> </div>
     <form id="sent-container">
         <input class="form-control form-control-sm mt-1" type="text" id="message-input" placeholder="Type a message...">
         <button class="btn btn-dark mt-1" type="submit" id="send-button">Send</button>
     </form> 
+    <span>Online Users: </span> <span id="online-Users"></span>
 </div>
 <script src="/socket.io/socket.io.js"></script>
 <script src="script.js"></script>

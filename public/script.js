@@ -2,24 +2,44 @@ const socket = io();
 const messageContainer = document.querySelector('#message-container')
 const messageForm = document.getElementById('sent-container')
 const messageInput = document.getElementById('message-input')
+const onlineUsersNum = document.getElementById('online-Users')
 
-const name = prompt('Enter your name');
-appendMessage('you joined ' + name)
+
+
+let onlineUsers = {};
+
+let name = "";
+do {
+    name = prompt('Enter your name');
+} while (name == null || name == "");
+
+
+appendMessageSelf('--Welcome: ' + name + '--')
 socket.emit('new-user', name)
 
 socket.on('chat-message', data => {
-    appendMessage(`${data.name}: ${data.message}`)
+    if (data.name != '' && data.name != null && data.name != undefined) {
+        appendMessage(`${data.name}: ${data.message}`)
+    }
 })
 socket.on('user-connected', name => {
     appendMessage(name + " connected")
 })
 socket.on('user-disconnected', name => {
-    appendMessage(name + " disconnected")
+    if (name != '' && name != null && name != undefined) {
+        appendMessage(name + " disconnected")
+    }
 })
+
+socket.on('users-online', Users => {
+    onlineUsers = Users;
+    onlineUsersNum.innerText = Object.values(onlineUsers);
+})
+
 messageForm.addEventListener('submit', e => {
     e.preventDefault();
     const message = messageInput.value;
-    appendMessage(`$You: ${message}`)
+    appendMessageSelf(`${message}`)
     socket.emit('send-chat-message', message)
     messageInput.value = '';
 })
@@ -29,3 +49,11 @@ function appendMessage(message) {
     messageElement.innerText = message;
     messageContainer.append(messageElement)
 }
+function appendMessageSelf(message) {
+    const messageElement = document.createElement('div');
+    messageElement.innerText = message;
+    messageElement.className = "text-primary ";
+
+    messageContainer.append(messageElement)
+}
+
