@@ -1,27 +1,34 @@
+const path = require('path');
+const http = require('http');
+const express = require('express');
+const socketio = require('socket.io');
+
 const PORT = process.env.PORT || 3000;
-const INDEX = '/index.html';
-const express = require('express')
 
-const server = express()
-    // .use((req, res) => res.sendFile(INDEX, { root: __dirname }))
-    .listen(PORT, () => {
-        console.log('listening on port 3000')
-        const socketIO = require('socket.io')
-        const io = socketIO(server);
+const app = express();
+const server = http.createServer(app);
 
-        const users = {}
+const io = socketio(server);
 
-        io.on("connection", socket => {
-            socket.on('new-user', name => {
-                users[socket.id] = name
-                socket.broadcast.emit('user-connected', name)
-            })
-            socket.on('send-chat-message', message => {
-                socket.broadcast.emit('chat-message', { message: message, name: users[socket.id] });
-            })
-            socket.on('disconnect', () => {
-                socket.broadcast.emit('user-disconnected', users[socket.id]);
-                delete users[socket.id]
-            })
-        });
-    });
+// Set static folder
+app.use(express.static(path.join(__dirname, 'public')));
+
+const users = {}
+
+io.on("connection", socket => {
+    socket.on('new-user', name => {
+        users[socket.id] = name
+        socket.broadcast.emit('user-connected', name)
+    })
+    socket.on('send-chat-message', message => {
+        socket.broadcast.emit('chat-message', { message: message, name: users[socket.id] });
+    })
+    socket.on('disconnect', () => {
+        socket.broadcast.emit('user-disconnected', users[socket.id]);
+        delete users[socket.id]
+    })
+});
+
+server.listen(PORT, () => {
+    console.log(`listening on port ${PORT}`)
+});
