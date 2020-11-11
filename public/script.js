@@ -14,13 +14,17 @@ do {
 } while (name == null || name == "");
 
 
+
+
 appendMessageSelf('--Welcome: ' + name + '--')
 socket.emit('new-user', name)
 
 socket.on('chat-message', data => {
     if (data.name != '' && data.name != null && data.name != undefined) {
         appendMessage(`${data.name}: ${data.message}`)
+        $(messageContainer).scrollTop(2000);
     }
+
 })
 socket.on('user-connected', name => {
     appendMessage(name + " connected")
@@ -42,6 +46,7 @@ messageForm.addEventListener('submit', e => {
     appendMessageSelf(`${message}`)
     socket.emit('send-chat-message', message)
     messageInput.value = '';
+    $(messageContainer).scrollTop(2000);
 })
 
 function appendMessage(message) {
@@ -50,10 +55,10 @@ function appendMessage(message) {
     messageContainer.append(messageElement)
 }
 function appendMessageSelf(message) {
+
     const messageElement = document.createElement('div');
     messageElement.innerText = message;
     messageElement.className = "text-primary ";
-
     messageContainer.append(messageElement)
 }
 
