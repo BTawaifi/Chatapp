@@ -14,8 +14,8 @@ do {
 } while (name == null || name == "");
 
 
-
-
+const docTitle = document.title;
+let notificationCount = 0;
 appendMessageSelf('--Welcome: ' + name + '--')
 socket.emit('new-user', name)
 
@@ -24,6 +24,16 @@ socket.on('chat-message', data => {
         appendMessage(`${data.name}: ${data.message}`)
         $(messageContainer).scrollTop(2000);
         audio.play();
+
+        if (!document.hasFocus()) {
+            notificationCount++;
+            document.title = docTitle + ' (' + notificationCount + ')'
+        }
+        else {
+            notificationCount = 0;
+            document.title = docTitle;
+        }
+
     }
 
 })
