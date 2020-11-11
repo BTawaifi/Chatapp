@@ -1,0 +1,10 @@
+#message-container {
+  height: 88vh;
+  overflow-y: scroll;
+}
+
+@media screen and (orientation: landscape) {
+  #message-container {
+    height: 70vh;
+  }
+}

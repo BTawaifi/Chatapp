@@ -3,7 +3,7 @@ const messageContainer = document.querySelector('#message-container')
 const messageForm = document.getElementById('sent-container')
 const messageInput = document.getElementById('message-input')
 const onlineUsersNum = document.getElementById('online-Users')
-
+var audio = new Audio("swiftly-610.mp3");
 
 
 let onlineUsers = {};
@@ -23,6 +23,7 @@ socket.on('chat-message', data => {
     if (data.name != '' && data.name != null && data.name != undefined) {
         appendMessage(`${data.name}: ${data.message}`)
         $(messageContainer).scrollTop(2000);
+        audio.play();
     }
 
 })
