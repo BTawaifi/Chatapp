@@ -1,5 +1,5 @@
 const socket = io();
-const messageContainer = document.getElementById('message-container')
+const messageContainer = document.querySelector('#message-container')
 const messageForm = document.getElementById('sent-container')
 const messageInput = document.getElementById('message-input')
 
