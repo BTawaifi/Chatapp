@@ -5,7 +5,6 @@ const messageInput = document.getElementById('message-input')
 const onlineUsersNum = document.getElementById('online-Users')
 var audio = new Audio("swiftly-610.mp3");
 
-
 let onlineUsers = {};
 
 let name = "";
@@ -16,7 +15,7 @@ do {
 
 const docTitle = document.title;
 let notificationCount = 0;
-appendMessageSelf('--Welcome: ' + name + '--')
+//appendMessage('| Welcome: ' + name + ' |', 'grey')
 socket.emit('new-user', name)
 
 socket.on('chat-message', data => {
@@ -45,19 +44,27 @@ socket.on('user-disconnected', name => {
         appendMessage(name + " disconnected")
     }
 })
+//https://socket.io/docs/client-connection-lifecycle/
+socket.on('disconnect', () => {
+    //temp
+    appendMessage('Connection Error...', 'red');
+})
+socket.on('reconnect', () => {
+    messageContainer.lastChild.remove();
+    socket.emit('new-user', name)
+})
 
 socket.on('users-online', Users => {
     onlineUsers = Users;
-    onlineUsersNum.innerText = Object.values(onlineUsers);
+    let fndName = Object.values(onlineUsers).findIndex(e => e == name);
+    let names = Object.values(onlineUsers);//Array
+    names[fndName] = names[fndName] + '(YOU)';
+    onlineUsersNum.innerText = names;
 })
 
 messageForm.addEventListener('submit', e => {
     e.preventDefault();
-    const message = messageInput.value;
-    appendMessageSelf(`${message}`)
-    socket.emit('send-chat-message', message)
-    messageInput.value = '';
-    $(messageContainer).scrollTop(2000);
+    handleDefaultFormSubmit();
 })
 
 function appendMessage(message) {
@@ -65,11 +72,35 @@ function appendMessage(message) {
     messageElement.innerText = message;
     messageContainer.append(messageElement)
 }
-function appendMessageSelf(message) {
-
+function appendMessage(message, color) {
     const messageElement = document.createElement('div');
     messageElement.innerText = message;
-    messageElement.className = "text-primary ";
+    if (color == 'self') {
+        messageElement.style.color = '#0275d8';
+    }
+    else {
+        messageElement.style.color = color;
+    }
     messageContainer.append(messageElement)
 }
 
+
+function handleDefaultFormSubmit() {
+    const message = messageInput.value;
+    appendMessage(`${message}`, 'self')
+    socket.emit('send-chat-message', message)
+    messageInput.value = '';
+    $(messageContainer).scrollTop(2000);
+}
+
+
+//handle enter key on form
+$('#message-input').keypress(function (e) {
+    if (e.keyCode == 13 && !e.ctrlKey) {
+        e.preventDefault();
+        $("#sent-container").submit(function (e) {
+            return false;
+        });
+        handleDefaultFormSubmit();
+    }
+});

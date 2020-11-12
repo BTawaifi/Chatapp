@@ -24,6 +24,7 @@ io.on("connection", socket => {
         socket.broadcast.emit('user-connected', name)
         io.emit('users-online', users)
     })
+
     socket.on('send-chat-message', message => {
         socket.broadcast.emit('chat-message', { message: message, name: users[socket.id] });
     })
