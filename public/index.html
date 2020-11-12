@@ -11,6 +11,7 @@
 </head>
 <body>
 <div class="container pt-3">
+    <span>Online Users: </span> <span style="color: gray;" id="online-Users"></span>
     <div id="message-container" class="form-control container content" > </div>
     <form class="input-group" id="sent-container">
         <div class="input-group-prepend">
@@ -18,7 +19,6 @@
         </div>
         <textarea class="form-control" id="message-input" placeholder="Type a message..." rows='1'></textarea>
     </form> 
-    <span>Online Users: </span> <span style="color: gray;" id="online-Users"></span>
 
 </div>
 <script src="/socket.io/socket.io.js"></script>
