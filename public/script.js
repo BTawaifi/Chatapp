@@ -58,7 +58,7 @@ socket.on('users-online', Users => {
     onlineUsers = Users;
     let fndName = Object.values(onlineUsers).findIndex(e => e == name);
     let names = Object.values(onlineUsers);//Array
-    names[fndName] = names[fndName] + '(YOU)';
+    names[fndName] = names[fndName] + '(You)';
     onlineUsersNum.innerText = names;
 })
 
@@ -67,12 +67,7 @@ messageForm.addEventListener('submit', e => {
     handleDefaultFormSubmit();
 })
 
-function appendMessage(message) {
-    const messageElement = document.createElement('div');
-    messageElement.innerText = message;
-    messageContainer.append(messageElement)
-}
-function appendMessage(message, color) {
+function appendMessage(message, color = 'black') {
     const messageElement = document.createElement('div');
     messageElement.innerText = message;
     if (color == 'self') {
