@@ -1,1 +1,118 @@
-const socket=io(),messageContainer=document.querySelector("#message-container"),messageForm=document.getElementById("sent-container"),messageInput=document.getElementById("message-input"),onlineUsersNum=document.getElementById("online-Users");var audio=new Audio("swiftly-610.mp3");let onlineUsers={},name="";do name=prompt("Enter your name");while(null==name||""==name);const docTitle=document.title;let notificationCount=0;socket.emit("new-user",name),socket.on("chat-message",a=>{""!=a.name&&null!=a.name&&a.name!=null&&(appendMessage(`${a.name}: ${a.message}`),$(messageContainer).scrollTop(2e3),audio.play(),document.hasFocus()?(notificationCount=0,document.title=docTitle):(notificationCount++,document.title=docTitle+" ("+notificationCount+")"))}),socket.on("user-connected",a=>{appendMessage(a+" connected")}),socket.on("user-disconnected",a=>{""!=a&&null!=a&&a!=null&&appendMessage(a+" disconnected")}),socket.on("disconnect",()=>{appendMessage("Connection Error...","red")}),socket.on("reconnect",()=>{messageContainer.lastChild.remove(),socket.emit("new-user",name)}),socket.on("users-online",a=>{onlineUsers=a;let b=Object.values(onlineUsers).findIndex(a=>a==name),c=Object.values(onlineUsers);c[b]+="(You)",onlineUsersNum.innerText=c}),messageForm.addEventListener("submit",a=>{a.preventDefault(),handleDefaultFormSubmit()});function appendMessage(a,b="black"){const c=document.createElement("div");c.innerText=a,c.style.color="self"==b?"#0275d8":b,messageContainer.append(c)}function handleDefaultFormSubmit(){const a=messageInput.value;appendMessage(`${a}`,"self"),socket.emit("send-chat-message",a),messageInput.value="",$(messageContainer).scrollTop(2e3)}$("#message-input").keypress(function(a){13!=a.keyCode||a.ctrlKey||(a.preventDefault(),$("#sent-container").submit(function(){return!1}),handleDefaultFormSubmit())});
+const socket = io();
+const messageContainer = document.querySelector('#message-container')
+const messageForm = document.getElementById('sent-container')
+const messageInput = document.getElementById('message-input')
+const onlineUsersNum = document.getElementById('online-Users')
+const loginForm = document.getElementById('loginForm');
+const formUserName = document.getElementById('formUserName');
+
+
+var audio = new Audio("swiftly-610.mp3");
+
+let onlineUsers = {};
+
+let name = "";
+let room = "";
+
+var options = {
+    'show': true,
+    'focus': true
+}
+$('#staticBackdrop').modal(options)
+//main loop after submit
+$('#loginBtn').click((e) => {
+    name = formUserName.value;
+    if (name == null || name == "") {
+        name = 'Anon ' + Math.floor(Math.random() * 1001)
+    }
+
+    socket.emit('joinRoom', { name, room });
+
+    const docTitle = document.title;
+    let notificationCount = 0;
+    //appendMessage('| Welcome: ' + name + ' |', 'grey')
+    socket.emit('new-user', name)
+
+    socket.on('chat-message', data => {
+        if (data.name != '' && data.name != null && data.name != undefined) {
+            appendMessage(`${data.name}: ${data.message}`)
+            $(messageContainer).scrollTop(2000);
+            audio.play();
+
+            if (!document.hasFocus()) {
+                notificationCount++;
+                document.title = docTitle + ' (' + notificationCount + ')'
+            }
+            else {
+                notificationCount = 0;
+                document.title = docTitle;
+            }
+
+        }
+
+    })
+    socket.on('user-connected', name => {
+        appendMessage(name + " connected")
+    })
+    socket.on('user-disconnected', name => {
+        if (name != '' && name != null && name != undefined) {
+            appendMessage(name + " disconnected")
+        }
+    })
+    //https://socket.io/docs/client-connection-lifecycle/
+    socket.on('disconnect', () => {
+        //temp
+        appendMessage('Connection Error...', 'red');
+    })
+    socket.on('reconnect', () => {
+        messageContainer.lastChild.remove();
+        socket.emit('new-user', name)
+    })
+
+    socket.on('users-online', Users => {
+        onlineUsers = Users;
+        let fndName = Object.values(onlineUsers).findIndex(e => e == name);
+        let names = Object.values(onlineUsers);//Array
+        names[fndName] = names[fndName] + '(You)';
+        onlineUsersNum.innerText = names;
+    })
+
+    messageForm.addEventListener('submit', e => {
+        e.preventDefault();
+        handleDefaultFormSubmit();
+    })
+
+    function appendMessage(message, color = 'black') {
+        const messageElement = document.createElement('div');
+        messageElement.innerText = message;
+        if (color == 'self') {
+            messageElement.style.color = '#0275d8';
+        }
+        else {
+            messageElement.style.color = color;
+        }
+        messageContainer.append(messageElement)
+    }
+
+
+    function handleDefaultFormSubmit() {
+        const message = messageInput.value;
+        appendMessage(`${message}`, 'self')
+        socket.emit('send-chat-message', message)
+        messageInput.value = '';
+        $(messageContainer).scrollTop(2000);
+    }
+
+
+    //handle enter key on form
+    $('#message-input').keypress(function (e) {
+        if (e.keyCode == 13 && !e.ctrlKey) {
+            e.preventDefault();
+            $("#sent-container").submit(function (e) {
+                return false;
+            });
+            handleDefaultFormSubmit();
+        }
+    });
+}
+);
