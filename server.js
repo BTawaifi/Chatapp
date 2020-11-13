@@ -2,6 +2,10 @@ const path = require('path');
 const http = require('http');
 const express = require('express');
 const socketio = require('socket.io');
+const { userJoin,
+    getCurrentUser,
+    userLeave,
+    getRoomUsers } = require('./public/users')
 
 const PORT = process.env.PORT || 3000;
 
@@ -13,24 +17,25 @@ const io = socketio(server);
 // Set static folder
 app.use(express.static(path.join(__dirname, 'public')));
 
-const users = {}
+
 
 io.on("connection", socket => {
 
-    io.emit('users-online', users)
+    socket.on('joinRoom', ({ username, room }) => {
+        const user = userJoin(socket.id, username, room)
+        socket.join(user.room)
 
-    socket.on('new-user', name => {
-        users[socket.id] = name
-        socket.broadcast.emit('user-connected', name)
-        io.emit('users-online', users)
-    })
+        socket.broadcast.to(user.room).emit('user-connected', user.username)
+        io.emit('users-online', getRoomUsers(user.room))
 
-    socket.on('send-chat-message', message => {
-        socket.broadcast.emit('chat-message', { message: message, name: users[socket.id] });
-    })
-    socket.on('disconnect', () => {
-        socket.broadcast.emit('user-disconnected', users[socket.id]);
-        delete users[socket.id]
+        socket.on('send-chat-message', message => {
+            socket.broadcast.to(user.room).emit('chat-message', { message: message, name: getCurrentUser(socket.id).username });
+        })
+        socket.on('disconnect', () => {
+            socket.broadcast.to(user.room).emit('user-disconnected', getCurrentUser(socket.id).username);
+            userLeave(socket.id)
+            io.emit('users-online', getRoomUsers(user.room))
+        })
     })
 });
 

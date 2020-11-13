@@ -5,13 +5,14 @@ const messageInput = document.getElementById('message-input')
 const onlineUsersNum = document.getElementById('online-Users')
 const loginForm = document.getElementById('loginForm');
 const formUserName = document.getElementById('formUserName');
-
+const formRoomName = document.getElementById('formRoomName');
+const getRoom = document.getElementById('getRoom');
 
 var audio = new Audio("swiftly-610.mp3");
 
-let onlineUsers = {};
+let onlineUsers = [];
 
-let name = "";
+let username = "";
 let room = "";
 
 var options = {
@@ -21,17 +22,17 @@ var options = {
 $('#staticBackdrop').modal(options)
 //main loop after submit
 $('#loginBtn').click((e) => {
-    name = formUserName.value;
-    if (name == null || name == "") {
-        name = 'Anon ' + Math.floor(Math.random() * 1001)
+    username = formUserName.value;
+    room = formRoomName.value;
+    if (username == null || username == "") {
+        username = 'Anon ' + Math.floor(Math.random() * 1001)
     }
+    getRoom.innerText = room
+    socket.emit('joinRoom', { username, room });
 
-    socket.emit('joinRoom', { name, room });
 
     const docTitle = document.title;
     let notificationCount = 0;
-    //appendMessage('| Welcome: ' + name + ' |', 'grey')
-    socket.emit('new-user', name)
 
     socket.on('chat-message', data => {
         if (data.name != '' && data.name != null && data.name != undefined) {
@@ -66,15 +67,22 @@ $('#loginBtn').click((e) => {
     })
     socket.on('reconnect', () => {
         messageContainer.lastChild.remove();
-        socket.emit('new-user', name)
+        socket.emit('joinRoom', { username, room })//temp
     })
 
     socket.on('users-online', Users => {
         onlineUsers = Users;
-        let fndName = Object.values(onlineUsers).findIndex(e => e == name);
-        let names = Object.values(onlineUsers);//Array
-        names[fndName] = names[fndName] + '(You)';
-        onlineUsersNum.innerText = names;
+        /// let fndName = Object.values(onlineUsers).findIndex(e => e == name);
+        //let names = Object.values(onlineUsers);//Array
+        //names[fndName] = names[fndName] + '(You)';
+        let text = ``;
+        Users.forEach(e => text += e.username + ' | ');
+        var ntext = text.replace(username, username + ' (You)')
+        if (onlineUsers[1] == null) {
+            ntext = username + ' (You)'
+        }
+        onlineUsersNum.innerText = ntext;
+
     })
 
     messageForm.addEventListener('submit', e => {
