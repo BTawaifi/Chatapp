@@ -1,13 +1,11 @@
 # BTChatting App
-Realtime chat app with websockets using Node.js, Express and Socket.io with Vanilla JS on the frontend with a custom UI
 
-## Usage
-```
-npm install
-npm run dev
+Realtime Private And Anonymous Chat App
 
-Go to localhost:3000
-```
+Broadcasts Only To Connected Users
 
-## Notes
-Please ask before using anything contained within the project.
+Doesn't Store Anything
+
+Implements websockets using Node.js, Express and Socket.io 
+
+The Backend Serves a static website for the frontend
